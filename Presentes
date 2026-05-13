@@ -1,0 +1,40 @@
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  let deviceId = localStorage.getItem("uni_device_id");
+
+  if (!deviceId) {
+    deviceId = "UNI-" + Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("uni_device_id", deviceId);
+  }
+
+  const webhookUrl = "https://hook.us2.make.com/gh4qyu4rg8cbesrxcnnjfqs92974erub";
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        device_id: deviceId,
+        fecha: new Date().toISOString(),
+        navegador: navigator.userAgent
+      })
+    });
+
+    document.body.innerHTML = `
+      <div style="font-family: Arial; text-align:center; margin-top:80px;">
+        <h2>Asistencia registrada ✅</h2>
+        <p>Tu presente fue registrado correctamente.</p>
+      </div>
+    `;
+  } catch (error) {
+    document.body.innerHTML = `
+      <div style="font-family: Arial; text-align:center; margin-top:80px;">
+        <h2>Error al registrar asistencia</h2>
+        <p>Intentá nuevamente o avisale al profesor.</p>
+      </div>
+    `;
+  }
+});
+</script>
