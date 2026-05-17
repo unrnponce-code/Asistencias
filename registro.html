@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro</title>
+</head>
+
+<body style="font-family: Arial; text-align:center; margin-top:80px;">
+
+<h2>Iniciando registro...</h2>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async function () {
+
+  // ======================
+  // DEVICE ID
+  // ======================
+
+  let deviceId = localStorage.getItem("uni_device_id");
+
+  if (!deviceId) {
+    deviceId = "UNI-" + Math.random().toString(36).substring(2, 12);
+    localStorage.setItem("uni_device_id", deviceId);
+  }
+
+  // ======================
+  // WEBHOOK MAKE
+  // ======================
+
+  const webhookUrl = "https://hook.us2.make.com/od39ssqrlrtxwjt32gwqogy7tov7ss6g";
+
+  try {
+
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        device_id: deviceId,
+        fecha: new Date().toISOString(),
+        navegador: navigator.userAgent
+      })
+    });
+
+    // RESPUESTA MAKE
+    const data = await response.json();
+
+    // REDIRECCIÓN
+    if (data.redirect_url) {
+
+      window.location.href = data.redirect_url;
+
+    } else {
+
+      document.body.innerHTML = `
+        <h2>Error</h2>
+        <p>No se recibió URL de redirección.</p>
+      `;
+
+    }
+
+  } catch (error) {
+
+    document.body.innerHTML = `
+      <h2>Error de conexión</h2>
+      <p>No se pudo conectar con el servidor.</p>
+    `;
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
