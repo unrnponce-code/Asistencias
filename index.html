@@ -1,5 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Asistencia</title>
+</head>
+
+<body>
+
 <script>
+
 document.addEventListener("DOMContentLoaded", async function () {
+
   let deviceId = localStorage.getItem("uni_device_id");
 
   if (!deviceId) {
@@ -10,6 +21,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const webhookUrl = "https://hook.us2.make.com/gh4qyu4rg8cbesrxcnnjfqs92974erub";
 
   try {
+
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
@@ -22,19 +34,35 @@ document.addEventListener("DOMContentLoaded", async function () {
       })
     });
 
-    document.body.innerHTML = `
-      <div style="font-family: Arial; text-align:center; margin-top:80px;">
-        <h2>Asistencia registrada ✅</h2>
-        <p>Tu presente fue registrado correctamente.</p>
-      </div>
-    `;
+    const data = await response.json();
+
+    if (data.redirect_url) {
+      window.location.href = data.redirect_url;
+    } else {
+
+      document.body.innerHTML = `
+        <div style="font-family: Arial; text-align:center; margin-top:80px;">
+          <h2>Error</h2>
+          <p>No se recibió URL de redirección.</p>
+        </div>
+      `;
+
+    }
+
   } catch (error) {
+
     document.body.innerHTML = `
       <div style="font-family: Arial; text-align:center; margin-top:80px;">
         <h2>Error al registrar asistencia</h2>
         <p>Intentá nuevamente o avisale al profesor.</p>
       </div>
     `;
+
   }
+
 });
+
 </script>
+
+</body>
+</html>
