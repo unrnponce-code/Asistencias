@@ -216,7 +216,7 @@ async function registrar(){
 
                 const data = await response.json();
 
-                if(data.status === "200"){
+                if(data.status === "ok"){
 
                     mensaje.className = "mensaje ok";
                     mensaje.innerHTML = data.message;
