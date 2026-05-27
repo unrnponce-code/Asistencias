@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
 
 body{
     font-family: Arial, sans-serif;
-    background:#f4f6f8;
+    background:#f4f7f6;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -21,64 +22,82 @@ body{
 .card{
     background:white;
     padding:40px;
-    border-radius:15px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
     width:90%;
     max-width:450px;
     text-align:center;
 }
 
 .logo{
-    font-size:28px;
+    font-size:36px;
     font-weight:bold;
-    color:#0077a8;
+    color:#00A88E;
+    margin-bottom:10px;
 }
 
 .subtitulo{
-    color:#666;
+    color:#555;
     margin-bottom:30px;
+    font-size:16px;
+    line-height:1.5;
 }
 
 input{
     width:100%;
-    padding:12px;
+    padding:14px;
     font-size:16px;
-    border:1px solid #ccc;
-    border-radius:8px;
+    border:2px solid #d9e5e2;
+    border-radius:10px;
     box-sizing:border-box;
+    transition:0.2s;
+}
+
+input:focus{
+    outline:none;
+    border-color:#00A88E;
 }
 
 button{
     margin-top:20px;
     width:100%;
-    padding:14px;
+    padding:15px;
     border:none;
-    border-radius:8px;
-    background:#0077a8;
+    border-radius:10px;
+    background:#00A88E;
     color:white;
     font-size:16px;
+    font-weight:bold;
     cursor:pointer;
+    transition:0.2s;
 }
 
 button:hover{
-    opacity:0.9;
+    background:#008F79;
 }
 
 .mensaje{
     margin-top:20px;
     font-weight:bold;
+    line-height:1.5;
 }
 
 .ok{
-    color:green;
+    color:#00A88E;
 }
 
 .error{
-    color:red;
+    color:#d32f2f;
 }
 
 .info{
-    color:#0077a8;
+    color:#555;
+}
+
+.footer{
+    margin-top:25px;
+    font-size:12px;
+    color:#888;
 }
 
 </style>
@@ -93,6 +112,7 @@ UNRN
 </div>
 
 <div class="subtitulo">
+Universidad Nacional de Río Negro<br>
 Sistema de Asistencia
 </div>
 
@@ -108,6 +128,10 @@ Registrar asistencia
 
 <div id="mensaje" class="mensaje"></div>
 
+<div class="footer">
+Asistencia digital para estudiantes
+</div>
+
 </div>
 
 <script>
@@ -120,13 +144,13 @@ async function registrar(){
     if(!dni){
 
         mensaje.className = "mensaje error";
-        mensaje.innerHTML = "Ingresá tu DNI";
+        mensaje.innerHTML = "Ingresá tu DNI.";
 
         return;
     }
 
     mensaje.className = "mensaje info";
-    mensaje.innerHTML = "Obteniendo ubicación...";
+    mensaje.innerHTML = "Solicitando ubicación...";
 
     if(!navigator.geolocation){
 
@@ -144,12 +168,13 @@ async function registrar(){
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
 
+            mensaje.className = "mensaje info";
             mensaje.innerHTML = "Validando asistencia...";
 
             try{
 
                 const response = await fetch(
-                    "TU_WEBHOOK_AQUI",
+                    "https://hook.us2.make.com/gh4qyu4rg8cbesrxcnnjfqs92974erub",
                     {
                         method:"POST",
                         headers:{
@@ -197,7 +222,7 @@ async function registrar(){
                 else{
 
                     mensaje.className = "mensaje error";
-                    mensaje.innerHTML = "Respuesta desconocida.";
+                    mensaje.innerHTML = "Respuesta desconocida del servidor.";
 
                 }
 
@@ -205,17 +230,41 @@ async function registrar(){
             catch(error){
 
                 mensaje.className = "mensaje error";
-                mensaje.innerHTML = "Error de conexión.";
+                mensaje.innerHTML = "No se pudo conectar con el servidor.";
 
             }
 
         },
 
-        function(){
+        function(error){
 
             mensaje.className = "mensaje error";
-            mensaje.innerHTML = "Debés permitir el acceso a la ubicación.";
 
+            switch(error.code){
+
+                case error.PERMISSION_DENIED:
+                    mensaje.innerHTML = "Debés permitir el acceso a la ubicación para registrar asistencia.";
+                    break;
+
+                case error.POSITION_UNAVAILABLE:
+                    mensaje.innerHTML = "No fue posible obtener tu ubicación.";
+                    break;
+
+                case error.TIMEOUT:
+                    mensaje.innerHTML = "Se agotó el tiempo para obtener la ubicación.";
+                    break;
+
+                default:
+                    mensaje.innerHTML = "Ocurrió un error al obtener la ubicación.";
+
+            }
+
+        },
+
+        {
+            enableHighAccuracy:true,
+            timeout:10000,
+            maximumAge:0
         }
 
     );
