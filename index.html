@@ -5,66 +5,88 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Asistencia UNRN</title>
+<title>Asistencia UNRN - Contabilidad</title>
 
 <style>
 
+:root{
+    --unrn-red:#B5121B;
+    --unrn-red-dark:#991019;
+    --unrn-gray:#444444;
+    --unrn-light:#f5f5f5;
+    --success:#2e7d32;
+    --error:#c62828;
+}
+
+*{
+    box-sizing:border-box;
+}
+
 body{
-    font-family: Arial, sans-serif;
-    background:#f4f7f6;
+    margin:0;
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    min-height:100vh;
-    margin:0;
+    background:var(--unrn-light);
+    font-family:Arial, sans-serif;
+    padding:20px;
 }
 
 .card{
+    width:100%;
+    max-width:500px;
     background:white;
+    border-radius:20px;
     padding:40px;
-    border-radius:18px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.08);
-    width:90%;
-    max-width:450px;
     text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
 }
 
 .logo{
-    font-size:36px;
+    width:280px;
+    max-width:100%;
+    margin-bottom:25px;
+}
+
+.titulo{
+    font-size:24px;
     font-weight:bold;
-    color:#00A88E;
+    color:var(--unrn-gray);
     margin-bottom:10px;
 }
 
-.subtitulo{
-    color:#555;
+.materia{
+    display:inline-block;
+    background:var(--unrn-red);
+    color:white;
+    padding:10px 20px;
+    border-radius:50px;
+    font-weight:bold;
     margin-bottom:30px;
-    font-size:16px;
-    line-height:1.5;
 }
 
 input{
     width:100%;
-    padding:14px;
+    padding:15px;
     font-size:16px;
-    border:2px solid #d9e5e2;
-    border-radius:10px;
-    box-sizing:border-box;
+    border:2px solid #d9d9d9;
+    border-radius:12px;
     transition:0.2s;
 }
 
 input:focus{
     outline:none;
-    border-color:#00A88E;
+    border-color:var(--unrn-red);
 }
 
 button{
-    margin-top:20px;
     width:100%;
+    margin-top:20px;
     padding:15px;
     border:none;
-    border-radius:10px;
-    background:#00A88E;
+    border-radius:12px;
+    background:var(--unrn-red);
     color:white;
     font-size:16px;
     font-weight:bold;
@@ -73,7 +95,7 @@ button{
 }
 
 button:hover{
-    background:#008F79;
+    background:var(--unrn-red-dark);
 }
 
 .mensaje{
@@ -83,37 +105,39 @@ button:hover{
 }
 
 .ok{
-    color:#00A88E;
+    color:var(--success);
 }
 
 .error{
-    color:#d32f2f;
+    color:var(--error);
 }
 
 .info{
-    color:#555;
+    color:var(--unrn-gray);
 }
 
 .footer{
-    margin-top:25px;
+    margin-top:30px;
     font-size:12px;
     color:#888;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="card">
 
-<div class="logo">
-UNRN
+<img src="logo-unrn.png" alt="UNRN" class="logo">
+
+<div class="titulo">
+Sistema de Asistencia Académica
 </div>
 
-<div class="subtitulo">
-Universidad Nacional de Río Negro<br>
-Sistema de Asistencia
+<div class="materia">
+CLASE DE CONTABILIDAD
 </div>
 
 <input
@@ -129,7 +153,7 @@ Registrar asistencia
 <div id="mensaje" class="mensaje"></div>
 
 <div class="footer">
-Asistencia digital para estudiantes
+Universidad Nacional de Río Negro
 </div>
 
 </div>
@@ -243,19 +267,19 @@ async function registrar(){
             switch(error.code){
 
                 case error.PERMISSION_DENIED:
-                    mensaje.innerHTML = "Debés permitir el acceso a la ubicación para registrar asistencia.";
+                    mensaje.innerHTML = "Debés permitir el acceso a la ubicación.";
                     break;
 
                 case error.POSITION_UNAVAILABLE:
-                    mensaje.innerHTML = "No fue posible obtener tu ubicación.";
+                    mensaje.innerHTML = "No fue posible obtener la ubicación.";
                     break;
 
                 case error.TIMEOUT:
-                    mensaje.innerHTML = "Se agotó el tiempo para obtener la ubicación.";
+                    mensaje.innerHTML = "Tiempo agotado al obtener la ubicación.";
                     break;
 
                 default:
-                    mensaje.innerHTML = "Ocurrió un error al obtener la ubicación.";
+                    mensaje.innerHTML = "Error al obtener la ubicación.";
 
             }
 
