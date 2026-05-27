@@ -1,66 +1,226 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Asistencia</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Asistencia UNRN</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f8;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    margin:0;
+}
+
+.card{
+    background:white;
+    padding:40px;
+    border-radius:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    width:90%;
+    max-width:450px;
+    text-align:center;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#0077a8;
+}
+
+.subtitulo{
+    color:#666;
+    margin-bottom:30px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    box-sizing:border-box;
+}
+
+button{
+    margin-top:20px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#0077a8;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.mensaje{
+    margin-top:20px;
+    font-weight:bold;
+}
+
+.ok{
+    color:green;
+}
+
+.error{
+    color:red;
+}
+
+.info{
+    color:#0077a8;
+}
+
+</style>
 </head>
 
 <body>
 
+<div class="card">
+
+<div class="logo">
+UNRN
+</div>
+
+<div class="subtitulo">
+Sistema de Asistencia
+</div>
+
+<input
+type="number"
+id="dni"
+placeholder="Ingresá tu DNI"
+>
+
+<button onclick="registrar()">
+Registrar asistencia
+</button>
+
+<div id="mensaje" class="mensaje"></div>
+
+</div>
+
 <script>
 
-document.addEventListener("DOMContentLoaded", async function () {
+async function registrar(){
 
-  let deviceId = localStorage.getItem("uni_device_id");
+    const mensaje = document.getElementById("mensaje");
+    const dni = document.getElementById("dni").value;
 
-  if (!deviceId) {
-    deviceId = "UNI-" + Math.random().toString(36).substring(2, 12);
-    localStorage.setItem("uni_device_id", deviceId);
-  }
+    if(!dni){
 
-  const webhookUrl = "https://hook.us2.make.com/gh4qyu4rg8cbesrxcnnjfqs92974erub";
+        mensaje.className = "mensaje error";
+        mensaje.innerHTML = "Ingresá tu DNI";
 
-  try {
-
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        device_id: deviceId,
-        fecha: new Date().toISOString(),
-        navegador: navigator.userAgent
-      })
-    });
-
-    const data = await response.json();
-
-    if (data.redirect_url) {
-      window.location.href = data.redirect_url;
-    } else {
-
-      document.body.innerHTML = `
-        <div style="font-family: Arial; text-align:center; margin-top:80px;">
-          <h2>Error</h2>
-          <p>No se recibió URL de redirección.</p>
-        </div>
-      `;
-
+        return;
     }
 
-  } catch (error) {
+    mensaje.className = "mensaje info";
+    mensaje.innerHTML = "Obteniendo ubicación...";
 
-    document.body.innerHTML = `
-      <div style="font-family: Arial; text-align:center; margin-top:80px;">
-        <h2>Error al registrar asistencia</h2>
-        <p>Intentá nuevamente o avisale al profesor.</p>
-      </div>
-    `;
+    if(!navigator.geolocation){
 
-  }
+        mensaje.className = "mensaje error";
+        mensaje.innerHTML = "Tu navegador no permite geolocalización.";
 
-});
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async function(position){
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            mensaje.innerHTML = "Validando asistencia...";
+
+            try{
+
+                const response = await fetch(
+                    "TU_WEBHOOK_AQUI",
+                    {
+                        method:"POST",
+                        headers:{
+                            "Content-Type":"application/json"
+                        },
+                        body:JSON.stringify({
+                            dni:dni,
+                            lat:lat,
+                            lng:lng,
+                            accuracy:accuracy,
+                            fecha:new Date().toISOString()
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if(data.status === "ok"){
+
+                    mensaje.className = "mensaje ok";
+                    mensaje.innerHTML = data.message;
+
+                }
+
+                else if(data.status === "duplicado"){
+
+                    mensaje.className = "mensaje info";
+                    mensaje.innerHTML = data.message;
+
+                }
+
+                else if(data.status === "ubicacion"){
+
+                    mensaje.className = "mensaje error";
+                    mensaje.innerHTML = data.message;
+
+                }
+
+                else if(data.status === "registro"){
+
+                    window.location.href = data.redirect_url;
+
+                }
+
+                else{
+
+                    mensaje.className = "mensaje error";
+                    mensaje.innerHTML = "Respuesta desconocida.";
+
+                }
+
+            }
+            catch(error){
+
+                mensaje.className = "mensaje error";
+                mensaje.innerHTML = "Error de conexión.";
+
+            }
+
+        },
+
+        function(){
+
+            mensaje.className = "mensaje error";
+            mensaje.innerHTML = "Debés permitir el acceso a la ubicación.";
+
+        }
+
+    );
+
+}
 
 </script>
 
